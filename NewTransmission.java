@@ -28,7 +28,7 @@ public class NewTransmission implements ActionListener {
     private JTable table;
     private JScrollPane scroll;
     private JSpinner price;
-    public static HashMap<List<String>, List<String>> productsMap = new HashMap<List<String>, List<String>>();
+    private static HashMap<List<String>, List<String>> productsMap = new HashMap<List<String>, List<String>>();
 
     public NewTransmission() {
         frame = new JFrame("Transmisja");
@@ -68,7 +68,6 @@ public class NewTransmission implements ActionListener {
         String[] columns = { "Nazwa", "Cena" };
         table = new JTable() {
             private static final long serialVersionUID = 1L;
-
             public boolean editCellAt(int row, int column, java.util.EventObject e) {
                return false;
            }};
@@ -101,6 +100,10 @@ public class NewTransmission implements ActionListener {
         else {
             return false;
         }
+    }
+
+    public static List<String> getClients(List<String> productData) {
+        return productsMap.get(productData);
     }
 
     @Override
