@@ -9,6 +9,9 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
@@ -20,12 +23,17 @@ public class Product implements ActionListener {
     JTable tableClient;
     JTextField textClient;
     DefaultTableModel model;
+    List<String> productData;
 
     public Product(MouseEvent e) {
 
         JTable table = (JTable)e.getSource();
         int row = table.getSelectedRow();
         String name = (String)table.getValueAt(row, 0);
+        String price = (String)table.getValueAt(row, 1);
+        productData = new ArrayList<String>();
+        productData.add(name);
+        productData.add(price);
 
         frame = new JFrame(name);
         frame.setSize(600, 750);
@@ -71,6 +79,7 @@ public class Product implements ActionListener {
         if (e.getActionCommand() == "addClient") {
             String client = textClient.getText();
             model.addRow(new Object[]{client});
+            NewTransmission.addClient(productData, client);
         }
     }
 }

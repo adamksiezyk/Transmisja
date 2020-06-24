@@ -11,6 +11,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
@@ -25,6 +28,7 @@ public class NewTransmission implements ActionListener {
     private JTable table;
     private JScrollPane scroll;
     private JSpinner price;
+    public static HashMap<List<String>, List<String>> productsMap = new HashMap<List<String>, List<String>>();
 
     public NewTransmission() {
         frame = new JFrame("Transmisja");
@@ -89,12 +93,26 @@ public class NewTransmission implements ActionListener {
         frame.setVisible(true);
     }
 
+    public static boolean addClient(List<String> productData, String client) {
+        if (productsMap.containsKey(productData)) {
+            productsMap.get(productData).add(client);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() == "addProduct") {
             String productName = textName.getText();
             Double productPrice = (Double)price.getValue();
             model.addRow(new Object[]{productName, productPrice.toString()});
+            List<String> productData = new ArrayList<String>();
+            productData.add(productName);
+            productData.add(productPrice.toString());
+            productsMap.put(productData, new ArrayList<String>());
         }
     }
 }
