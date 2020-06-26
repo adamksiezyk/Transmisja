@@ -11,9 +11,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
@@ -22,13 +26,14 @@ public class NewTransmission implements ActionListener {
     private JFrame frame;
     private JPanel panel, panelTop;
     private JLabel labelName, labelPrice;
-    private JButton buttonAdd;
+    private JButton buttonAdd, buttonSave;
     private JTextField textName;
     private DefaultTableModel model;
     private JTable table;
     private JScrollPane scroll;
     private JSpinner price;
-    private static HashMap<List<String>, List<String>> productsMap = new HashMap<List<String>, List<String>>();
+    private static HashMap<List<String>, List<String[]>> productsMap = new HashMap<List<String>, List<String[]>>();
+    private List<String> summaryList;
 
     public NewTransmission() {
         frame = new JFrame("Transmisja");
@@ -63,14 +68,22 @@ public class NewTransmission implements ActionListener {
         buttonAdd.setPreferredSize(new Dimension(100, 30));
         panelTop.add(buttonAdd);
 
+        buttonSave = new JButton("Zapisz transmisję");
+        buttonSave.setPreferredSize(new Dimension(100, 30));
+        buttonSave.addActionListener(this);
+        buttonSave.setActionCommand("save");
+        panelTop.add(buttonSave);
+
         panel.add(panelTop);
 
         String[] columns = { "Nazwa", "Cena" };
         table = new JTable() {
             private static final long serialVersionUID = 1L;
+
             public boolean editCellAt(int row, int column, java.util.EventObject e) {
-               return false;
-           }};
+                return false;
+            }
+        };
         model = new DefaultTableModel();
         model.setColumnIdentifiers(columns);
         table.setModel(model);
@@ -79,7 +92,7 @@ public class NewTransmission implements ActionListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                if (e.getClickCount()== 2 && !e.isConsumed()) {
+                if (e.getClickCount() == 2 && !e.isConsumed()) {
                     e.consume();
                     new Product(e);
                 }
@@ -92,17 +105,16 @@ public class NewTransmission implements ActionListener {
         frame.setVisible(true);
     }
 
-    public static boolean addClient(List<String> productData, String client) {
+    public static boolean addClient(List<String> productData, String[] client) {
         if (productsMap.containsKey(productData)) {
             productsMap.get(productData).add(client);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
-    public static List<String> getClients(List<String> productData) {
+    public static List<String[]> getClients(List<String> productData) {
         return productsMap.get(productData);
     }
 
@@ -110,12 +122,31 @@ public class NewTransmission implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() == "addProduct") {
             String productName = textName.getText();
-            Double productPrice = (Double)price.getValue();
-            model.addRow(new Object[]{productName, productPrice.toString()});
+            Double productPrice = (Double) price.getValue();
+            model.addRow(new Object[] { productName, productPrice.toString() });
             List<String> productData = new ArrayList<String>();
             productData.add(productName);
             productData.add(productPrice.toString());
-            productsMap.put(productData, new ArrayList<String>());
+            productsMap.put(productData, new ArrayList<String[]>());
+        } else if (e.getActionCommand() == "save") {
+            summaryList = new ArrayList<String>();
+            try {
+                PrintWriter file = new PrintWriter(java.time.LocalDateTime.now() + ".txt");
+                for (Map.Entry<List<String>, List<String[]>> entry : productsMap.entrySet()) {
+                    List<String> product = entry.getKey();
+                    List<String[]> clients = entry.getValue();
+                    for (String[] client : clients) {
+                        summaryList.add(client[0] + " " + product.get(0) + " " + client[1] + " " + client[2] + " " + product.get(1));
+                    }
+                }
+                Collections.sort(summaryList);
+                for (String line : summaryList) {
+                    file.println(line);
+                }
+                file.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 }

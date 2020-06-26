@@ -20,7 +20,7 @@ public class Product implements ActionListener {
     JPanel panel, panelTop;
     JScrollPane scroll;
     JTable tableClient;
-    JTextField textClient;
+    JTextField textClient, textColor, textSize;
     DefaultTableModel model;
     List<String> productData;
 
@@ -35,7 +35,7 @@ public class Product implements ActionListener {
         productData.add(price);
 
         frame = new JFrame(name);
-        frame.setSize(600, 750);
+        frame.setSize(1200, 750);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -47,12 +47,26 @@ public class Product implements ActionListener {
         panelTop.setLayout(new FlowLayout());
         panel.add(panelTop);
 
-        JLabel labelName = new JLabel("Dodaj klienta");
+        JLabel labelName = new JLabel("Nazwa na FB:");
         panelTop.add(labelName);
 
         textClient = new JTextField(20);
         textClient.setPreferredSize(new Dimension(100, 30));
         panelTop.add(textClient);
+
+        JLabel labelColor = new JLabel("Kolor:");
+        panelTop.add(labelColor);
+        
+        textColor = new JTextField(20);
+        textColor.setPreferredSize(new Dimension(100, 30));
+        panelTop.add(textColor);
+
+        JLabel labelSize = new JLabel("Rozmiar:");
+        panelTop.add(labelSize);
+
+        textSize = new JTextField(20);
+        textSize.setPreferredSize(new Dimension(100, 30));
+        panelTop.add(textSize);
 
         JButton buttonAdd = new JButton("Dodaj");
         buttonAdd.setPreferredSize(new Dimension(100, 30));
@@ -61,14 +75,14 @@ public class Product implements ActionListener {
         panelTop.add(buttonAdd);
 
         tableClient = new JTable();
-        String[] columns = {"Nazwa na Facebooku"};
+        String[] columns = {"Nazwa na Facebooku", "Kolor", "Rozmiar"};
         model = new DefaultTableModel();
         model.setColumnIdentifiers(columns);
         tableClient.setModel(model);
         tableClient.setRowHeight(30);
         // Add saved products
-        for (String client : NewTransmission.getClients(productData)) {
-            model.addRow(new Object[]{client});
+        for (String[] client : NewTransmission.getClients(productData)) {
+            model.addRow(client);
         }
         
         scroll = new JScrollPane(tableClient);
@@ -80,9 +94,12 @@ public class Product implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand() == "addClient") {
-            String client = textClient.getText();
-            model.addRow(new Object[]{client});
-            NewTransmission.addClient(productData, client);
+            String clientName = textClient.getText();
+            String clientColor = textColor.getText();
+            String clientSize = textSize.getText();
+            String[] clientData = new String[]{clientName, clientColor, clientSize};
+            model.addRow(new Object[]{clientName, clientColor, clientSize});
+            NewTransmission.addClient(productData, clientData);
         }
     }
 }
