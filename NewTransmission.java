@@ -40,6 +40,31 @@ public class NewTransmission implements ActionListener {
         frame.setSize(600, 750);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Save products and clients to file when closing
+        frame.addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosed(e);
+                summaryList = new ArrayList<String>();
+                try {
+                    PrintWriter file = new PrintWriter(java.time.LocalDateTime.now() + ".txt");
+                    for (Map.Entry<List<String>, List<String[]>> entry : productsMap.entrySet()) {
+                        List<String> product = entry.getKey();
+                        List<String[]> clients = entry.getValue();
+                        for (String[] client : clients) {
+                            summaryList.add(client[0] + " " + product.get(0) + " " + client[1] + " " + client[2] + " " + product.get(1));
+                        }
+                    }
+                    Collections.sort(summaryList);
+                    for (String line : summaryList) {
+                        file.println(line);
+                    }
+                    file.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
 
         panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -128,25 +153,6 @@ public class NewTransmission implements ActionListener {
             productData.add(productName);
             productData.add(productPrice.toString());
             productsMap.put(productData, new ArrayList<String[]>());
-        } else if (e.getActionCommand() == "save") {
-            summaryList = new ArrayList<String>();
-            try {
-                PrintWriter file = new PrintWriter(java.time.LocalDateTime.now() + ".txt");
-                for (Map.Entry<List<String>, List<String[]>> entry : productsMap.entrySet()) {
-                    List<String> product = entry.getKey();
-                    List<String[]> clients = entry.getValue();
-                    for (String[] client : clients) {
-                        summaryList.add(client[0] + " " + product.get(0) + " " + client[1] + " " + client[2] + " " + product.get(1));
-                    }
-                }
-                Collections.sort(summaryList);
-                for (String line : summaryList) {
-                    file.println(line);
-                }
-                file.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
     }
 }
