@@ -56,8 +56,13 @@ public class NewTransmission implements ActionListener {
                         }
                     }
                     Collections.sort(summaryList);
+                    String[] first = summaryList.get(0).split(" ");
                     for (String line : summaryList) {
+                        if (!(first[0].equals(line.split(" ")[0]) && first[1].equals(line.split(" ")[1]))) {
+                            file.println("-------------------------------------------------------------------");
+                        }
                         file.println(line);
+                        first = line.split(" ");
                     }
                     file.close();
                 } catch (IOException e1) {
@@ -92,12 +97,6 @@ public class NewTransmission implements ActionListener {
         buttonAdd.setActionCommand("addProduct");
         buttonAdd.setPreferredSize(new Dimension(100, 30));
         panelTop.add(buttonAdd);
-
-        buttonSave = new JButton("Zapisz transmisję");
-        buttonSave.setPreferredSize(new Dimension(100, 30));
-        buttonSave.addActionListener(this);
-        buttonSave.setActionCommand("save");
-        panelTop.add(buttonSave);
 
         panel.add(panelTop);
 
