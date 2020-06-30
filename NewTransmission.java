@@ -13,6 +13,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,13 +28,13 @@ public class NewTransmission implements ActionListener {
     private JFrame frame;
     private JPanel panel, panelTop;
     private JLabel labelName, labelPrice;
-    private JButton buttonAdd, buttonSave;
+    private JButton buttonAdd;
     private JTextField textName;
     private DefaultTableModel model;
     private JTable table;
     private JScrollPane scroll;
     private JSpinner price;
-    private static HashMap<List<String>, List<String[]>> productsMap = new HashMap<List<String>, List<String[]>>();
+    private static HashMap<List<String>, List<List<String>>> productsMap = new HashMap<List<String>, List<List<String>>>();
     private List<String> summaryList;
 
     public NewTransmission() {
@@ -47,12 +49,14 @@ public class NewTransmission implements ActionListener {
                 super.windowClosed(e);
                 summaryList = new ArrayList<String>();
                 try {
-                    PrintWriter file = new PrintWriter(java.time.LocalDateTime.now() + ".txt");
-                    for (Map.Entry<List<String>, List<String[]>> entry : productsMap.entrySet()) {
+                    LocalDateTime date = LocalDateTime.now();
+                    String dateFormat = date.format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss"));
+                    PrintWriter file = new PrintWriter(dateFormat + ".txt");
+                    for (Map.Entry<List<String>, List<List<String>>> entry : productsMap.entrySet()) {
                         List<String> product = entry.getKey();
-                        List<String[]> clients = entry.getValue();
-                        for (String[] client : clients) {
-                            summaryList.add(client[0] + " " + product.get(0) + " " + client[1] + " " + client[2] + " " + product.get(1));
+                        List<List<String>> clients = entry.getValue();
+                        for (List<String> client : clients) {
+                            summaryList.add(client.get(0) + " " + product.get(0) + " " + client.get(1) + " " + client.get(2) + " " + product.get(1));
                         }
                     }
                     Collections.sort(summaryList);
@@ -129,7 +133,7 @@ public class NewTransmission implements ActionListener {
         frame.setVisible(true);
     }
 
-    public static boolean addClient(List<String> productData, String[] client) {
+    public static boolean addClient(List<String> productData, List<String> client) {
         if (productsMap.containsKey(productData)) {
             productsMap.get(productData).add(client);
             return true;
@@ -138,7 +142,13 @@ public class NewTransmission implements ActionListener {
         }
     }
 
-    public static List<String[]> getClients(List<String> productData) {
+    public static boolean removeClient(List<String> productData, List<String> client) {
+        if (productsMap.containsKey(productData)) {
+            return productsMap.get(productData).remove(client);
+        } else return false;
+    }
+
+    public static List<List<String>> getClients(List<String> productData) {
         return productsMap.get(productData);
     }
 
@@ -151,7 +161,7 @@ public class NewTransmission implements ActionListener {
             List<String> productData = new ArrayList<String>();
             productData.add(productName);
             productData.add(productPrice.toString());
-            productsMap.put(productData, new ArrayList<String[]>());
+            productsMap.put(productData, new ArrayList<List<String>>());
         }
     }
 }
