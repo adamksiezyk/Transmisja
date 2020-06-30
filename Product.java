@@ -1,11 +1,4 @@
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
@@ -56,7 +49,7 @@ public class Product implements ActionListener {
 
         JLabel labelColor = new JLabel("Kolor:");
         panelTop.add(labelColor);
-        
+
         textColor = new JTextField(20);
         textColor.setPreferredSize(new Dimension(100, 30));
         panelTop.add(textColor);
@@ -81,10 +74,23 @@ public class Product implements ActionListener {
         tableClient.setModel(model);
         tableClient.setRowHeight(30);
         // Add saved products
-        for (String[] client : NewTransmission.getClients(productData)) {
-            model.addRow(client);
+        for (List<String> client : NewTransmission.getClients(productData)) {
+            model.addRow(client.toArray());
         }
-        
+
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem deleteClient = new JMenuItem("Usuń");
+        deleteClient.addActionListener(this);
+        deleteClient.setActionCommand("deleteClient");
+        JMenuItem editClient = new JMenuItem("Edytuj");
+        editClient.addActionListener(this);
+        editClient.setActionCommand("editClient");
+        menu.add(deleteClient);
+        menu.add(editClient);
+
+        tableClient.setComponentPopupMenu(menu);
+        tableClient.addMouseListener(new TableMouseListener(tableClient));
+
         scroll = new JScrollPane(tableClient);
         panel.add(scroll);
 
@@ -97,9 +103,28 @@ public class Product implements ActionListener {
             String clientName = textClient.getText();
             String clientColor = textColor.getText();
             String clientSize = textSize.getText();
-            String[] clientData = new String[]{clientName, clientColor, clientSize};
-            model.addRow(new Object[]{clientName, clientColor, clientSize});
+            List<String> clientData = new ArrayList<String>();
+            clientData.add(clientName);
+            clientData.add(clientColor);
+            clientData.add(clientSize);
+            model.addRow(clientData.toArray());
             NewTransmission.addClient(productData, clientData);
+        }
+        else if (e.getActionCommand() == "deleteClient") {
+            int selectedRow = tableClient.getSelectedRow();
+            String clientName = (String)tableClient.getValueAt(selectedRow, 0);
+            String clientColor = (String)tableClient.getValueAt(selectedRow, 1);
+            String clientSize = (String)tableClient.getValueAt(selectedRow, 2);
+            List<String> clientData = new ArrayList<String>();
+            clientData.add(clientName);
+            clientData.add(clientColor);
+            clientData.add(clientSize);
+            model.removeRow(selectedRow);
+            NewTransmission.removeClient(productData, clientData);
+        }
+        else if (e.getActionCommand() == "editClient") {
+            int selectedRow = tableClient.getSelectedRow();
+            System.out.println("Edited row: " + selectedRow);
         }
     }
 }
