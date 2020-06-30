@@ -67,7 +67,7 @@ public class Product implements ActionListener {
         buttonAdd.setActionCommand("addClient");
         panelTop.add(buttonAdd);
 
-        tableClient = new JTable();
+        tableClient = new TableWithMenu();
         String[] columns = {"Nazwa na Facebooku", "Kolor", "Rozmiar"};
         model = new DefaultTableModel();
         model.setColumnIdentifiers(columns);
@@ -89,7 +89,6 @@ public class Product implements ActionListener {
         menu.add(editClient);
 
         tableClient.setComponentPopupMenu(menu);
-        tableClient.addMouseListener(new TableMouseListener(tableClient));
 
         scroll = new JScrollPane(tableClient);
         panel.add(scroll);

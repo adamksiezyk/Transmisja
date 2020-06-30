@@ -28,7 +28,7 @@ public class NewTransmission implements ActionListener {
     private JFrame frame;
     private JPanel panel, panelTop;
     private JLabel labelName, labelPrice;
-    private JButton buttonAdd, buttonSave;
+    private JButton buttonAdd;
     private JTextField textName;
     private DefaultTableModel model;
     private JTable table;
