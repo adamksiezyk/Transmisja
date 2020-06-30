@@ -2,7 +2,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -84,6 +86,16 @@ public class Product implements ActionListener {
         for (String[] client : NewTransmission.getClients(productData)) {
             model.addRow(client);
         }
+
+        // Add popup menu to delete clients
+        JPopupMenu menu = new JPopupMenu(){
+            // TODO
+        };
+        JMenuItem deleteClient = new JMenuItem("Usuń klienta");
+        deleteClient.addActionListener(this);
+        deleteClient.setActionCommand("deleteClient");
+        menu.add(deleteClient);
+        tableClient.setComponentPopupMenu(menu);
         
         scroll = new JScrollPane(tableClient);
         panel.add(scroll);
@@ -100,6 +112,11 @@ public class Product implements ActionListener {
             String[] clientData = new String[]{clientName, clientColor, clientSize};
             model.addRow(new Object[]{clientName, clientColor, clientSize});
             NewTransmission.addClient(productData, clientData);
+        }
+        else if (e.getActionCommand() == "deleteClient") {
+            JTable sourceTable = (JTable)e.getSource();
+            int sourceRow = sourceTable.getSelectedRow();
+            System.out.println("Delete row: " + sourceRow);
         }
     }
 }
