@@ -11,7 +11,7 @@ public class TableWithMenu extends JTable {
     public JPopupMenu getComponentPopupMenu() {
         Point p = getMousePosition();
         int row = rowAtPoint(p);
-        setRowSelectionInterval(row, 0);
+        setRowSelectionInterval(row, row);
         return super.getComponentPopupMenu();
     }
 }
