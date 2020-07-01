@@ -23,7 +23,7 @@ public class Product implements ActionListener {
         int row = table.getSelectedRow();
         String name = (String)table.getValueAt(row, 0);
         String price = (String)table.getValueAt(row, 1);
-        productData = new ArrayList<String>();
+        productData = new ArrayList<>();
         productData.add(name);
         productData.add(price);
 
@@ -73,6 +73,7 @@ public class Product implements ActionListener {
         model.setColumnIdentifiers(columns);
         tableClient.setModel(model);
         tableClient.setRowHeight(30);
+        tableClient.setDefaultEditor(Object.class, new CustomCellEditor(productData));
         // Add saved products
         for (List<String> client : NewTransmission.getClients(productData)) {
             model.addRow(client.toArray());
@@ -98,32 +99,36 @@ public class Product implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand() == "addClient") {
+        if (e.getActionCommand().equals("addClient")) {
             String clientName = textClient.getText();
             String clientColor = textColor.getText();
             String clientSize = textSize.getText();
-            List<String> clientData = new ArrayList<String>();
+            List<String> clientData = new ArrayList<>();
             clientData.add(clientName);
             clientData.add(clientColor);
             clientData.add(clientSize);
             model.addRow(clientData.toArray());
             NewTransmission.addClient(productData, clientData);
         }
-        else if (e.getActionCommand() == "deleteClient") {
+        else if (e.getActionCommand().equals("deleteClient")) {
             int selectedRow = tableClient.getSelectedRow();
             String clientName = (String)tableClient.getValueAt(selectedRow, 0);
             String clientColor = (String)tableClient.getValueAt(selectedRow, 1);
             String clientSize = (String)tableClient.getValueAt(selectedRow, 2);
-            List<String> clientData = new ArrayList<String>();
+            List<String> clientData = new ArrayList<>();
             clientData.add(clientName);
             clientData.add(clientColor);
             clientData.add(clientSize);
             model.removeRow(selectedRow);
             NewTransmission.removeClient(productData, clientData);
         }
-        else if (e.getActionCommand() == "editClient") {
+        else if (e.getActionCommand().equals("editClient")) {
             int selectedRow = tableClient.getSelectedRow();
-            System.out.println("Edited row: " + selectedRow);
+            int selectedColumn = tableClient.getSelectedColumn();
+            if (selectedRow >= 0 && selectedColumn >= 0) {
+                tableClient.editCellAt(selectedRow, selectedColumn);
+                tableClient.transferFocus();
+            }
         }
     }
 }

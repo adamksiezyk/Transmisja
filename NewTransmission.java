@@ -1,18 +1,10 @@
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,7 +26,7 @@ public class NewTransmission implements ActionListener {
     private JTable table;
     private JScrollPane scroll;
     private JSpinner price;
-    private static HashMap<List<String>, List<List<String>>> productsMap = new HashMap<List<String>, List<List<String>>>();
+    private static HashMap<List<String>, List<List<String>>> productsMap = new HashMap<>();
     private List<String> summaryList;
 
     public NewTransmission() {
@@ -47,7 +39,7 @@ public class NewTransmission implements ActionListener {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosed(e);
-                summaryList = new ArrayList<String>();
+                summaryList = new ArrayList<>();
                 try {
                     LocalDateTime date = LocalDateTime.now();
                     String dateFormat = date.format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss"));
@@ -105,7 +97,7 @@ public class NewTransmission implements ActionListener {
         panel.add(panelTop);
 
         String[] columns = { "Nazwa", "Cena" };
-        table = new JTable() {
+        table = new TableWithMenu() {
             private static final long serialVersionUID = 1L;
 
             public boolean editCellAt(int row, int column, java.util.EventObject e) {
@@ -127,6 +119,17 @@ public class NewTransmission implements ActionListener {
             }
         });
 
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem deleteProduct = new JMenuItem("Usuń");
+        deleteProduct.addActionListener(this);
+        deleteProduct.setActionCommand("deleteProduct");
+        menu.add(deleteProduct);
+        JMenuItem editProduct = new JMenuItem("Edytuj");
+        editProduct.addActionListener(this);
+        editProduct.setActionCommand("editProduct");
+        menu.add(editProduct);
+        table.setComponentPopupMenu(menu);
+
         scroll = new JScrollPane(table);
         panel.add(scroll);
 
@@ -135,17 +138,26 @@ public class NewTransmission implements ActionListener {
 
     public static boolean addClient(List<String> productData, List<String> client) {
         if (productsMap.containsKey(productData)) {
-            productsMap.get(productData).add(client);
-            return true;
-        } else {
-            return false;
-        }
+            return productsMap.get(productData).add(client);
+        } else return false;
     }
 
-    public static boolean removeClient(List<String> productData, List<String> client) {
+    public static boolean removeClient(List<String> productData, List<String> clientData) {
         if (productsMap.containsKey(productData)) {
-            return productsMap.get(productData).remove(client);
+            return productsMap.get(productData).remove(clientData);
         } else return false;
+    }
+
+    public static boolean changeClient(List<String> productData, List<String> clientData, int valueToEdit, String newValue) {
+        if (productsMap.containsKey(productData)) {
+            for (List<String> client: productsMap.get(productData)) {
+                if (client.equals(clientData) && valueToEdit >= 0) {
+                    client.set(valueToEdit, newValue);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static List<List<String>> getClients(List<String> productData) {
@@ -154,14 +166,24 @@ public class NewTransmission implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand() == "addProduct") {
+        if (e.getActionCommand().equals("addProduct")) {
             String productName = textName.getText();
             Double productPrice = (Double) price.getValue();
             model.addRow(new Object[] { productName, productPrice.toString() });
-            List<String> productData = new ArrayList<String>();
+            List<String> productData = new ArrayList<>();
             productData.add(productName);
             productData.add(productPrice.toString());
-            productsMap.put(productData, new ArrayList<List<String>>());
+            productsMap.put(productData, new ArrayList<>());
+        }
+        if (e.getActionCommand().equals("deleteProduct")) {
+            int selectedRow = table.getSelectedRow();
+            String productName = (String)table.getValueAt(selectedRow, 0);
+            String productPrice = (String)table.getValueAt(selectedRow, 1);
+            List<String> productData = new ArrayList<>();
+            productData.add(productName);
+            productData.add(productPrice);
+            model.removeRow(selectedRow);
+            productsMap.remove(productData);
         }
     }
 }
