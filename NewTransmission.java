@@ -86,6 +86,14 @@ public class NewTransmission implements ActionListener {
 
         price = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 100000.0, 0.01));
         price.setPreferredSize(new Dimension(100, 30));
+        ((JSpinner.DefaultEditor)price.getEditor()).getTextField().addKeyListener( new KeyAdapter() {
+            @Override
+            public void keyReleased( final KeyEvent e ) {
+                if ( e.getKeyCode() == KeyEvent.VK_ENTER ) {
+                    buttonAdd.doClick();
+                }
+            }
+        } );
         panelTop.add(price);
 
         buttonAdd = new JButton("Dodaj");
@@ -93,6 +101,7 @@ public class NewTransmission implements ActionListener {
         buttonAdd.setActionCommand("addProduct");
         buttonAdd.setPreferredSize(new Dimension(100, 30));
         panelTop.add(buttonAdd);
+        frame.getRootPane().setDefaultButton(buttonAdd);
 
         panel.add(panelTop);
 
@@ -173,12 +182,20 @@ public class NewTransmission implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("addProduct")) {
             String productName = textName.getText();
+            textName.setText("");
             Double productPrice = (Double) price.getValue();
-            model.addRow(new Object[] { productName, productPrice.toString() });
+            price.setValue(0.0);
             List<String> productData = new ArrayList<>();
             productData.add(productName);
             productData.add(productPrice.toString());
+
+            model.addRow(productData.toArray());
             productsMap.put(productData, new ArrayList<>());
+
+//            int lastRow = table.getRowCount()-1;
+//            table.setRowSelectionInterval(lastRow, lastRow);
+//            table.requestFocus();
+            textName.requestFocus();
         }
         else if (e.getActionCommand().equals("deleteProduct")) {
             int selectedRow = table.getSelectedRow();
@@ -187,8 +204,11 @@ public class NewTransmission implements ActionListener {
             List<String> productData = new ArrayList<>();
             productData.add(productName);
             productData.add(productPrice);
+
             model.removeRow(selectedRow);
             productsMap.remove(productData);
+
+            textName.requestFocus();
         }
         else if (e.getActionCommand().equals("editProduct")) {
             int selectedRow = table.getSelectedRow();

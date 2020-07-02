@@ -10,15 +10,15 @@ public class Product implements ActionListener {
 
     JFrame frame;
     JPanel panel, panelTop;
+    JTable table;
     JScrollPane scroll;
     JTable tableClient;
-    JTextField textClient, textColor, textSize;
+    JTextField textName, textColor, textSize;
     DefaultTableModel model;
     List<String> productData;
 
     public Product(MouseEvent e) {
-
-        JTable table = (JTable)e.getSource();
+        table = (JTable) e.getSource();
         int row = table.getSelectedRow();
         String name = (String)table.getValueAt(row, 0);
         String price = (String)table.getValueAt(row, 1);
@@ -42,9 +42,9 @@ public class Product implements ActionListener {
         JLabel labelName = new JLabel("Nazwa na FB:");
         panelTop.add(labelName);
 
-        textClient = new JTextField(20);
-        textClient.setPreferredSize(new Dimension(100, 30));
-        panelTop.add(textClient);
+        textName = new JTextField(20);
+        textName.setPreferredSize(new Dimension(100, 30));
+        panelTop.add(textName);
 
         JLabel labelColor = new JLabel("Kolor:");
         panelTop.add(labelColor);
@@ -65,6 +65,7 @@ public class Product implements ActionListener {
         buttonAdd.addActionListener(this);
         buttonAdd.setActionCommand("addClient");
         panelTop.add(buttonAdd);
+        frame.getRootPane().setDefaultButton(buttonAdd);
 
         tableClient = new TableWithMenu();
         String[] columns = {"Nazwa na Facebooku", "Kolor", "Rozmiar"};
@@ -99,15 +100,21 @@ public class Product implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("addClient")) {
-            String clientName = textClient.getText();
+            String clientName = textName.getText();
+            textName.setText("");
             String clientColor = textColor.getText();
+            textColor.setText("");
             String clientSize = textSize.getText();
+            textSize.setText("");
             List<String> clientData = new ArrayList<>();
             clientData.add(clientName);
             clientData.add(clientColor);
             clientData.add(clientSize);
+
             model.addRow(clientData.toArray());
             NewTransmission.addClient(productData, clientData);
+
+            textName.requestFocus();
         }
         else if (e.getActionCommand().equals("deleteClient")) {
             int selectedRow = tableClient.getSelectedRow();
@@ -118,8 +125,11 @@ public class Product implements ActionListener {
             clientData.add(clientName);
             clientData.add(clientColor);
             clientData.add(clientSize);
+
             model.removeRow(selectedRow);
             NewTransmission.removeClient(productData, clientData);
+
+            textName.requestFocus();
         }
         else if (e.getActionCommand().equals("editClient")) {
             int selectedRow = tableClient.getSelectedRow();
