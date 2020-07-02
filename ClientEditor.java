@@ -1,18 +1,28 @@
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 
-public class CustomCellEditor extends DefaultCellEditor {
+public class ClientEditor extends DefaultCellEditor {
 
     private List<String> productData;
     private List<String> clientData;
     int valueToEdit;
 
-    public CustomCellEditor(List<String> productData) {
+    public ClientEditor(List<String> productData) {
         super(new JTextField());
         this.productData = productData;
+    }
+
+    @Override
+    public boolean isCellEditable(EventObject anEvent) {
+        if (anEvent instanceof MouseEvent) return false;
+        else if (anEvent instanceof KeyEvent) return false;
+        return super.isCellEditable(anEvent);
     }
 
     @Override

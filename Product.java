@@ -1,11 +1,10 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 
 public class Product implements ActionListener {
 
@@ -73,7 +72,7 @@ public class Product implements ActionListener {
         model.setColumnIdentifiers(columns);
         tableClient.setModel(model);
         tableClient.setRowHeight(30);
-        tableClient.setDefaultEditor(Object.class, new CustomCellEditor(productData));
+        tableClient.setDefaultEditor(Object.class, new ClientEditor(productData));
         // Add saved products
         for (List<String> client : NewTransmission.getClients(productData)) {
             model.addRow(client.toArray());

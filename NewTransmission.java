@@ -97,22 +97,17 @@ public class NewTransmission implements ActionListener {
         panel.add(panelTop);
 
         String[] columns = { "Nazwa", "Cena" };
-        table = new TableWithMenu() {
-            private static final long serialVersionUID = 1L;
-
-            public boolean editCellAt(int row, int column, java.util.EventObject e) {
-                return false;
-            }
-        };
+        table = new TableWithMenu();
         model = new DefaultTableModel();
         model.setColumnIdentifiers(columns);
         table.setModel(model);
         table.setRowHeight(30);
+        table.setDefaultEditor(Object.class, new ProductEditor());
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                if (e.getClickCount() == 2 && !e.isConsumed()) {
+                if (e.getClickCount() % 2 == 0 && !e.isConsumed()) {
                     e.consume();
                     new Product(e);
                 }
@@ -149,13 +144,23 @@ public class NewTransmission implements ActionListener {
     }
 
     public static boolean changeClient(List<String> productData, List<String> clientData, int valueToEdit, String newValue) {
-        if (productsMap.containsKey(productData)) {
+        if (productsMap.containsKey(productData) && valueToEdit >= 0) {
             for (List<String> client: productsMap.get(productData)) {
-                if (client.equals(clientData) && valueToEdit >= 0) {
+                if (client.equals(clientData)) {
                     client.set(valueToEdit, newValue);
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    public static boolean changeProduct(List<String> productData, int valueToEdit, String newValue) {
+        if (productsMap.containsKey(productData)) {
+            List<List<String>> clients = productsMap.remove(productData);
+            productData.set(valueToEdit, newValue);
+            productsMap.put(productData, clients);
+            return true;
         }
         return false;
     }
@@ -175,7 +180,7 @@ public class NewTransmission implements ActionListener {
             productData.add(productPrice.toString());
             productsMap.put(productData, new ArrayList<>());
         }
-        if (e.getActionCommand().equals("deleteProduct")) {
+        else if (e.getActionCommand().equals("deleteProduct")) {
             int selectedRow = table.getSelectedRow();
             String productName = (String)table.getValueAt(selectedRow, 0);
             String productPrice = (String)table.getValueAt(selectedRow, 1);
@@ -184,6 +189,14 @@ public class NewTransmission implements ActionListener {
             productData.add(productPrice);
             model.removeRow(selectedRow);
             productsMap.remove(productData);
+        }
+        else if (e.getActionCommand().equals("editProduct")) {
+            int selectedRow = table.getSelectedRow();
+            int selectedColumn = table.getSelectedColumn();
+            if (selectedRow >= 0 && selectedColumn >=0) {
+                table.editCellAt(selectedRow, selectedColumn);
+                table.transferFocus();
+            }
         }
     }
 }
