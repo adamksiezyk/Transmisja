@@ -22,12 +22,13 @@ public class NewTransmission implements ActionListener {
     private JLabel labelName, labelPrice;
     private JButton buttonAdd;
     private JTextField textName;
-    private DefaultTableModel model;
+    private static DefaultTableModel model;
     private JTable table;
     private JScrollPane scroll;
     private JSpinner price;
     private static HashMap<List<String>, List<List<String>>> productsMap = new HashMap<>();
     private List<String> summaryList;
+    private String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss")) + ".txt";
 
     public NewTransmission() {
         frame = new JFrame("Transmisja");
@@ -41,9 +42,7 @@ public class NewTransmission implements ActionListener {
                 super.windowClosed(e);
                 summaryList = new ArrayList<>();
                 try {
-                    LocalDateTime date = LocalDateTime.now();
-                    String dateFormat = date.format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss"));
-                    PrintWriter file = new PrintWriter(dateFormat + ".txt");
+                    PrintWriter file = new PrintWriter(fileName);
                     for (Map.Entry<List<String>, List<List<String>>> entry : productsMap.entrySet()) {
                         List<String> product = entry.getKey();
                         List<List<String>> clients = entry.getValue();
@@ -143,7 +142,13 @@ public class NewTransmission implements ActionListener {
     public static boolean addClient(List<String> productData, List<String> client) {
         if (productsMap.containsKey(productData)) {
             return productsMap.get(productData).add(client);
-        } else return false;
+        } else {
+            model.addRow(productData.toArray());
+            List<List<String>> clientsList = new ArrayList<>();
+            clientsList.add(client);
+            productsMap.put(productData, clientsList);
+            return true;
+        }
     }
 
     public static boolean removeClient(List<String> productData, List<String> clientData) {
@@ -176,6 +181,10 @@ public class NewTransmission implements ActionListener {
 
     public static List<List<String>> getClients(List<String> productData) {
         return productsMap.get(productData);
+    }
+
+    public void setFileName(String name) {
+        this.fileName = name;
     }
 
     @Override

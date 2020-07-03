@@ -1,10 +1,15 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Product implements ActionListener {
 
@@ -16,6 +21,7 @@ public class Product implements ActionListener {
     JTextField textName, textColor, textSize;
     DefaultTableModel model;
     List<String> productData;
+    List<String> blackList = new ArrayList<>();
 
     public Product(MouseEvent e) {
         table = (JTable) e.getSource();
@@ -74,7 +80,33 @@ public class Product implements ActionListener {
         tableClient.setModel(model);
         tableClient.setRowHeight(30);
         tableClient.setDefaultEditor(Object.class, new ClientEditor(productData));
-        // Add saved products
+
+        // Load black list
+        try {
+            Scanner reader = new Scanner(new File("CzarnaLista.txt"));
+            while (reader.hasNextLine()) {
+                blackList.add(reader.nextLine());
+            }
+        } catch (FileNotFoundException fileNotFoundException) {
+            fileNotFoundException.printStackTrace();
+        }
+        tableClient.setDefaultRenderer(Object.class, new DefaultTableCellRenderer()
+        {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+            {
+                final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (blackList.contains(value)) {
+                    c.setBackground(Color.RED);
+                }
+                else {
+                    c.setBackground(tableClient.getBackground());
+                }
+                return c;
+            }
+        });
+
+        // Add saved clients
         for (List<String> client : NewTransmission.getClients(productData)) {
             model.addRow(client.toArray());
         }
@@ -86,8 +118,12 @@ public class Product implements ActionListener {
         JMenuItem editClient = new JMenuItem("Edytuj");
         editClient.addActionListener(this);
         editClient.setActionCommand("editClient");
+        JMenuItem blackList = new JMenuItem("Czarna lista");
+        blackList.addActionListener(this);
+        blackList.setActionCommand("blackList");
         menu.add(deleteClient);
         menu.add(editClient);
+        menu.add(blackList);
 
         tableClient.setComponentPopupMenu(menu);
 
@@ -99,7 +135,8 @@ public class Product implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("addClient")) {
+        String command = e.getActionCommand();
+        if (command.equals("addClient")) {
             String clientName = textName.getText();
             textName.setText("");
             String clientColor = textColor.getText();
@@ -116,7 +153,7 @@ public class Product implements ActionListener {
 
             textName.requestFocus();
         }
-        else if (e.getActionCommand().equals("deleteClient")) {
+        else if (command.equals("deleteClient")) {
             int selectedRow = tableClient.getSelectedRow();
             String clientName = (String)tableClient.getValueAt(selectedRow, 0);
             String clientColor = (String)tableClient.getValueAt(selectedRow, 1);
@@ -131,12 +168,23 @@ public class Product implements ActionListener {
 
             textName.requestFocus();
         }
-        else if (e.getActionCommand().equals("editClient")) {
+        else if (command.equals("editClient")) {
             int selectedRow = tableClient.getSelectedRow();
             int selectedColumn = tableClient.getSelectedColumn();
             if (selectedRow >= 0 && selectedColumn >= 0) {
                 tableClient.editCellAt(selectedRow, selectedColumn);
                 tableClient.transferFocus();
+            }
+        }
+        else if (command.equals("blackList")) {
+            int selectedRow = tableClient.getSelectedRow();
+            String name = (String)tableClient.getValueAt(selectedRow, 0);
+            try {
+                PrintWriter writer = new PrintWriter("CzarnaLista.txt");
+                writer.println(name);
+                writer.close();
+            } catch (FileNotFoundException fileNotFoundException) {
+                fileNotFoundException.printStackTrace();
             }
         }
     }

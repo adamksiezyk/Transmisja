@@ -1,10 +1,15 @@
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.event.*;
 import java.awt.GridLayout;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 public class GUI {
 
@@ -29,6 +34,42 @@ public class GUI {
         panel.add(buttonNew);
 
         buttonLoad = new JButton("Załaduj transmisję");
+        buttonLoad.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("Pliki .txt", "txt");
+                fileChooser.setFileFilter(filter);
+                int returnValue = fileChooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    String path = fileChooser.getSelectedFile().getAbsolutePath();
+                    try {
+                        NewTransmission loadedTransmission = new NewTransmission();
+                        loadedTransmission.setFileName(fileChooser.getSelectedFile().getName());
+                        Scanner reader = new Scanner(new File(path));
+                        while (reader.hasNextLine()) {
+                            String line = reader.nextLine();
+                            if (!line.contains("---")) {
+                                String[] orderData = line.split(", ");
+
+                                List<String> productData = new ArrayList<>();
+                                productData.add(orderData[1]);
+                                productData.add(orderData[4]);
+                                List<String> clientData = new ArrayList<>();
+                                clientData.add(orderData[0]);
+                                clientData.add(orderData[2]);
+                                clientData.add(orderData[3]);
+                                loadedTransmission.addClient(productData, clientData);
+                            }
+                        }
+                    } catch (FileNotFoundException fileNotFoundException) {
+                        fileNotFoundException.printStackTrace();
+                    }
+
+                }
+                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+            }
+        });
         panel.add(buttonLoad);
 
         frame = new JFrame();
