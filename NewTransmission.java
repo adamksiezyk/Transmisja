@@ -51,13 +51,15 @@ public class NewTransmission implements ActionListener {
                         }
                     }
                     Collections.sort(summaryList);
-                    String[] first = summaryList.get(0).split(",");
-                    for (String line : summaryList) {
-                        if (!first[0].equals(line.split(",")[0])) {
-                            file.println("-------------------------------------------------------------------");
+                    if (!summaryList.isEmpty()) {
+                        String[] first = summaryList.get(0).split(",");
+                        for (String line : summaryList) {
+                            if (!first[0].equals(line.split(",")[0])) {
+                                file.println("-------------------------------------------------------------------");
+                            }
+                            file.println(line);
+                            first = line.split(",");
                         }
-                        file.println(line);
-                        first = line.split(",");
                     }
                     file.close();
                 } catch (IOException e1) {
