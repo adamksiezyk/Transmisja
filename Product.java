@@ -4,9 +4,7 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -179,13 +177,15 @@ public class Product implements ActionListener {
         else if (command.equals("blackList")) {
             int selectedRow = tableClient.getSelectedRow();
             String name = (String)tableClient.getValueAt(selectedRow, 0);
+            blackList.add(name);
             try {
-                PrintWriter writer = new PrintWriter("CzarnaLista.txt");
+                PrintWriter writer = new PrintWriter(new FileWriter("CzarnaLista.txt", true));
                 writer.println(name);
                 writer.close();
-            } catch (FileNotFoundException fileNotFoundException) {
+            } catch (IOException fileNotFoundException) {
                 fileNotFoundException.printStackTrace();
             }
+            model.fireTableRowsUpdated(selectedRow, selectedRow);
         }
     }
 }

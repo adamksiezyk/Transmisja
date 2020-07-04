@@ -45,7 +45,7 @@ public class GUI {
                     String path = fileChooser.getSelectedFile().getAbsolutePath();
                     try {
                         NewTransmission loadedTransmission = new NewTransmission();
-                        loadedTransmission.setFileName(fileChooser.getSelectedFile().getName());
+                        loadedTransmission.setFileName(path);
                         Scanner reader = new Scanner(new File(path));
                         while (reader.hasNextLine()) {
                             String line = reader.nextLine();
