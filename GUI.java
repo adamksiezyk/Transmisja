@@ -50,11 +50,12 @@ public class GUI {
                         while (reader.hasNextLine()) {
                             String line = reader.nextLine();
                             if (!line.contains("---")) {
-                                String[] orderData = line.split(", ");
+                                String[] orderData = line.split(" - ");
 
                                 List<String> productData = new ArrayList<>();
                                 productData.add(orderData[1]);
-                                productData.add(orderData[4]);
+                                String[] price = orderData[4].split(" ");
+                                productData.add(price[1]);
                                 List<String> clientData = new ArrayList<>();
                                 clientData.add(orderData[0]);
                                 clientData.add(orderData[2]);

@@ -47,18 +47,18 @@ public class NewTransmission implements ActionListener {
                         List<String> product = entry.getKey();
                         List<List<String>> clients = entry.getValue();
                         for (List<String> client : clients) {
-                            summaryList.add(client.get(0) + ", " + product.get(0) + ", " + client.get(1) + ", " + client.get(2) + ", " + product.get(1));
+                            summaryList.add(client.get(0) + " - " + product.get(0) + " - " + client.get(1) + " - " + client.get(2) + " - Cena: " + product.get(1) + " zł");
                         }
                     }
                     Collections.sort(summaryList);
                     if (!summaryList.isEmpty()) {
-                        String[] first = summaryList.get(0).split(",");
+                        String[] first = summaryList.get(0).split(" - ");
                         for (String line : summaryList) {
-                            if (!first[0].equals(line.split(",")[0])) {
+                            if (!first[0].equals(line.split(" - ")[0])) {
                                 file.println("-------------------------------------------------------------------");
                             }
                             file.println(line);
-                            first = line.split(",");
+                            first = line.split(" - ");
                         }
                     }
                     file.close();
