@@ -46,7 +46,7 @@ public class GUI {
                     try {
                         NewTransmission loadedTransmission = new NewTransmission();
                         loadedTransmission.setFileName(path);
-                        Scanner reader = new Scanner(new File(path));
+                        Scanner reader = new Scanner(new File(path), "UTF8");
                         while (reader.hasNextLine()) {
                             String line = reader.nextLine();
                             if (!line.contains("---") && !line.contains("Przesyłka") && !line.contains("Suma")) {

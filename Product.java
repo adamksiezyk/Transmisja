@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -81,7 +82,7 @@ public class Product implements ActionListener {
 
         // Load black list
         try {
-            Scanner reader = new Scanner(new File("CzarnaLista.txt"));
+            Scanner reader = new Scanner(new File("CzarnaLista.txt"), "UTF-8");
             while (reader.hasNextLine()) {
                 blackList.add(reader.nextLine());
             }
@@ -179,7 +180,8 @@ public class Product implements ActionListener {
             String name = (String)tableClient.getValueAt(selectedRow, 0);
             blackList.add(name);
             try {
-                PrintWriter writer = new PrintWriter(new FileWriter("CzarnaLista.txt", true));
+                OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream("CzarnaLista.txt", true), StandardCharsets.UTF_8);
+                PrintWriter writer = new PrintWriter(out);
                 writer.println(name);
                 writer.close();
             } catch (IOException fileNotFoundException) {
