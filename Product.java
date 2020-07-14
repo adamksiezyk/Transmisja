@@ -136,11 +136,11 @@ public class Product implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
         if (command.equals("addClient")) {
-            String clientName = textName.getText();
+            String clientName = textName.getText().trim();
             textName.setText("");
-            String clientColor = textColor.getText();
+            String clientColor = textColor.getText().trim();
             textColor.setText("");
-            String clientSize = textSize.getText();
+            String clientSize = textSize.getText().trim();
             textSize.setText("");
             List<String> clientData = new ArrayList<>();
             clientData.add(clientName);

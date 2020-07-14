@@ -44,7 +44,7 @@ public class ProductEditor extends DefaultCellEditor {
         // Get new value
         String newValue = (String)getCellEditorValue();
         // Change value in productMap data structure
-        NewTransmission.changeProduct(productData, valueToEdit, newValue);
+        NewTransmission.changeProduct(productData, valueToEdit, newValue.trim());
         return super.stopCellEditing();
     }
 }

@@ -4,7 +4,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -13,26 +12,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 
 public class NewTransmission implements ActionListener {
 
     private JFrame frame;
-    private JPanel panel, panelTop;
-    private JLabel labelName, labelPrice;
-    private JButton buttonAdd, buttonSave;
-    private JTextField textName;
-    private static DefaultTableModel model;
-    private JTable table;
-    private JScrollPane scroll;
-    private JSpinner price;
-    private static HashMap<List<String>, List<List<String>>> productsMap = new HashMap<>();
+    private JPanel panelMain, panelTop;
+    private JLabel labelName, labelSearch;
+    private JButton buttonAdd, buttonSave, buttonSearch;
+    private JTextField textName, textSearch;
+    private static DefaultTableModel modelProd;
+    private JTable tableProd;
+    private JScrollPane scrollProd;
+    private JSpinner spinnerPrice;
+    private static HashMap<List<String>, List<List<String>>> ordersMap = new HashMap<>();
     private List<String> summaryList;
     private String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss")) + ".txt";
 
     public NewTransmission() {
+        // Create frame
         frame = new JFrame("Transmisja");
-        frame.setSize(600, 750);
+        frame.setSize(600, 500);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Save products and clients to file when closing
@@ -44,26 +43,31 @@ public class NewTransmission implements ActionListener {
             }
         });
 
-        panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        frame.add(panel);
+        // Main panel - container
+        panelMain = new JPanel();
+        panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));
+        frame.add(panelMain);
 
+        // Top panel
         panelTop = new JPanel();
-        panelTop.setLayout(new FlowLayout());
+        GroupLayout layoutAdd = new GroupLayout(panelTop);
+        panelTop.setLayout(layoutAdd);
+        panelMain.add(panelTop);
 
+        // Top panel - components
         labelName = new JLabel("Dodaj produkt:");
-        panelTop.add(labelName);
+
+        labelSearch = new JLabel("Szukaj klienta:");
 
         textName = new JTextField(20);
-        textName.setPreferredSize(new Dimension(100, 30));
-        panelTop.add(textName);
+        textName.setMaximumSize(new Dimension(500, 30));
 
-        labelPrice = new JLabel("Cena:");
-        panelTop.add(labelPrice);
+        textSearch = new JTextField(20);
+        textSearch.setMaximumSize(new Dimension(500, 30));
 
-        price = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 100000.0, 0.01));
-        price.setPreferredSize(new Dimension(100, 30));
-        ((JSpinner.DefaultEditor)price.getEditor()).getTextField().addKeyListener( new KeyAdapter() {
+        spinnerPrice = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 100000.0, 0.01));
+        spinnerPrice.setMaximumSize(new Dimension(100, 30));
+        ((JSpinner.DefaultEditor) spinnerPrice.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased( final KeyEvent e ) {
                 if ( e.getKeyCode() == KeyEvent.VK_ENTER ) {
@@ -71,31 +75,66 @@ public class NewTransmission implements ActionListener {
                 }
             }
         } );
-        panelTop.add(price);
 
         buttonAdd = new JButton("Dodaj");
         buttonAdd.addActionListener(this);
         buttonAdd.setActionCommand("addProduct");
         buttonAdd.setPreferredSize(new Dimension(100, 30));
-        panelTop.add(buttonAdd);
         frame.getRootPane().setDefaultButton(buttonAdd);
+
+        buttonSearch = new JButton("Szukaj");
+        buttonSearch.addActionListener(this);
+        buttonSearch.setActionCommand("search");
+        buttonSearch.setPreferredSize(new Dimension(100, 30));
 
         buttonSave = new JButton("Zapisz");
         buttonSave.addActionListener(this);
         buttonSave.setActionCommand("save");
         buttonSave.setPreferredSize(new Dimension(100, 30));
-        panelTop.add(buttonSave);
 
-        panel.add(panelTop);
+        // Top panel - layout
+        layoutAdd.setAutoCreateGaps(true);
+        layoutAdd.setAutoCreateContainerGaps(true);
+        layoutAdd.linkSize(SwingConstants.VERTICAL, labelName, labelSearch, textName, textSearch, spinnerPrice, buttonAdd, buttonSearch, buttonSave);
+        layoutAdd.linkSize(SwingConstants.HORIZONTAL, buttonAdd, buttonSearch, buttonSave);
+        layoutAdd.setHorizontalGroup(
+                layoutAdd.createSequentialGroup()
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addComponent(labelName)
+                                .addComponent(labelSearch))
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addComponent(textName)
+                                .addComponent(textSearch))
+                        .addComponent(spinnerPrice)
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addComponent(buttonAdd)
+                                .addComponent(buttonSearch)
+                                .addComponent(buttonSave))
+        );
+        layoutAdd.setVerticalGroup(
+                layoutAdd.createSequentialGroup()
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(labelName)
+                                .addComponent(textName)
+                                .addComponent(spinnerPrice)
+                                .addComponent(buttonAdd))
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addComponent(labelSearch)
+                                .addComponent(textSearch)
+                                .addComponent(buttonSearch))
+                        .addComponent(buttonSave)
+        );
 
-        String[] columns = { "Nazwa", "Cena" };
-        table = new TableWithMenu();
-        model = new DefaultTableModel();
-        model.setColumnIdentifiers(columns);
-        table.setModel(model);
-        table.setRowHeight(30);
-        table.setDefaultEditor(Object.class, new ProductEditor());
-        table.addMouseListener(new MouseAdapter() {
+        // Products table
+        String[] columnsProd = { "Nazwa", "Cena" };
+        tableProd = new TableWithMenu();
+        modelProd = new DefaultTableModel();
+        modelProd.setColumnIdentifiers(columnsProd);
+        tableProd.setModel(modelProd);
+        tableProd.setRowHeight(30);
+        tableProd.setDefaultEditor(Object.class, new ProductEditor());
+        // Double click mouse listener
+        tableProd.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
@@ -106,6 +145,7 @@ public class NewTransmission implements ActionListener {
             }
         });
 
+        // Table popup menu
         JPopupMenu menu = new JPopupMenu();
         JMenuItem deleteProduct = new JMenuItem("Usuń");
         deleteProduct.addActionListener(this);
@@ -115,35 +155,38 @@ public class NewTransmission implements ActionListener {
         editProduct.addActionListener(this);
         editProduct.setActionCommand("editProduct");
         menu.add(editProduct);
-        table.setComponentPopupMenu(menu);
+        tableProd.setComponentPopupMenu(menu);
 
-        scroll = new JScrollPane(table);
-        panel.add(scroll);
+        scrollProd = new JScrollPane(tableProd);
+        panelMain.add(scrollProd);
 
         frame.setVisible(true);
     }
 
+    // Add client to product
     public static boolean addClient(List<String> productData, List<String> client) {
-        if (productsMap.containsKey(productData)) {
-            return productsMap.get(productData).add(client);
+        if (ordersMap.containsKey(productData)) {
+            return ordersMap.get(productData).add(client);
         } else {
-            model.addRow(productData.toArray());
+            modelProd.addRow(productData.toArray());
             List<List<String>> clientsList = new ArrayList<>();
             clientsList.add(client);
-            productsMap.put(productData, clientsList);
+            ordersMap.put(productData, clientsList);
             return true;
         }
     }
 
+    // Remove client from product
     public static boolean removeClient(List<String> productData, List<String> clientData) {
-        if (productsMap.containsKey(productData)) {
-            return productsMap.get(productData).remove(clientData);
+        if (ordersMap.containsKey(productData)) {
+            return ordersMap.get(productData).remove(clientData);
         } else return false;
     }
 
+    // Change client data in given product
     public static boolean changeClient(List<String> productData, List<String> clientData, int valueToEdit, String newValue) {
-        if (productsMap.containsKey(productData) && valueToEdit >= 0) {
-            for (List<String> client: productsMap.get(productData)) {
+        if (ordersMap.containsKey(productData) && valueToEdit >= 0) {
+            for (List<String> client: ordersMap.get(productData)) {
                 if (client.equals(clientData)) {
                     client.set(valueToEdit, newValue);
                     return true;
@@ -153,30 +196,34 @@ public class NewTransmission implements ActionListener {
         return false;
     }
 
+    // Change product data
     public static boolean changeProduct(List<String> productData, int valueToEdit, String newValue) {
-        if (productsMap.containsKey(productData)) {
-            List<List<String>> clients = productsMap.remove(productData);
+        if (ordersMap.containsKey(productData)) {
+            List<List<String>> clients = ordersMap.remove(productData);
             productData.set(valueToEdit, newValue);
-            productsMap.put(productData, clients);
+            ordersMap.put(productData, clients);
             return true;
         }
         return false;
     }
 
+    // Get clients from product
     public static List<List<String>> getClients(List<String> productData) {
-        return productsMap.get(productData);
+        return ordersMap.get(productData);
     }
 
+    // Set file name
     public void setFileName(String name) {
         this.fileName = name;
     }
 
+    // Save orders to file
     public void saveToFile() {
         summaryList = new ArrayList<>();
         double sum = 0;
         try {
             PrintWriter file = new PrintWriter(fileName, "UTF-8");
-            for (Map.Entry<List<String>, List<List<String>>> entry : productsMap.entrySet()) {
+            for (Map.Entry<List<String>, List<List<String>>> entry : ordersMap.entrySet()) {
                 List<String> product = entry.getKey();
                 List<List<String>> clients = entry.getValue();
                 for (List<String> client : clients) {
@@ -207,21 +254,22 @@ public class NewTransmission implements ActionListener {
         }
     }
 
+    // Button listeners
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
 
         if (command.equals("addProduct")) {
-            String productName = textName.getText();
+            String productName = textName.getText().trim();
             textName.setText("");
-            Double productPrice = (Double) price.getValue();
-            price.setValue(0.0);
+            Double productPrice = (Double) spinnerPrice.getValue();
+            spinnerPrice.setValue(0.0);
             List<String> productData = new ArrayList<>();
             productData.add(productName);
             productData.add(productPrice.toString());
 
-            model.addRow(productData.toArray());
-            productsMap.put(productData, new ArrayList<>());
+            modelProd.addRow(productData.toArray());
+            ordersMap.put(productData, new ArrayList<>());
 
 //            int lastRow = table.getRowCount()-1;
 //            table.setRowSelectionInterval(lastRow, lastRow);
@@ -229,28 +277,31 @@ public class NewTransmission implements ActionListener {
             textName.requestFocus();
         }
         else if (command.equals("deleteProduct")) {
-            int selectedRow = table.getSelectedRow();
-            String productName = (String)table.getValueAt(selectedRow, 0);
-            String productPrice = (String)table.getValueAt(selectedRow, 1);
+            int selectedRow = tableProd.getSelectedRow();
+            String productName = (String) tableProd.getValueAt(selectedRow, 0);
+            String productPrice = (String) tableProd.getValueAt(selectedRow, 1);
             List<String> productData = new ArrayList<>();
             productData.add(productName);
             productData.add(productPrice);
 
-            model.removeRow(selectedRow);
-            productsMap.remove(productData);
+            modelProd.removeRow(selectedRow);
+            ordersMap.remove(productData);
 
             textName.requestFocus();
         }
         else if (command.equals("editProduct")) {
-            int selectedRow = table.getSelectedRow();
-            int selectedColumn = table.getSelectedColumn();
+            int selectedRow = tableProd.getSelectedRow();
+            int selectedColumn = tableProd.getSelectedColumn();
             if (selectedRow >= 0 && selectedColumn >=0) {
-                table.editCellAt(selectedRow, selectedColumn);
-                table.transferFocus();
+                tableProd.editCellAt(selectedRow, selectedColumn);
+                tableProd.transferFocus();
             }
         }
         else if (command.equals("save")) {
             saveToFile();
+        }
+        else if (command.equals("search")) {
+            // TODO
         }
     }
 }

@@ -49,7 +49,7 @@ public class ClientEditor extends DefaultCellEditor {
         // Get new value
         String newValue = (String)getCellEditorValue();
         // Change value in productMap data structure
-        NewTransmission.changeClient(productData, clientData, valueToEdit, newValue);
+        NewTransmission.changeClient(productData, clientData, valueToEdit, newValue.trim());
         return super.stopCellEditing();
     }
 }
