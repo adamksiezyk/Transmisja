@@ -20,7 +20,7 @@ public class NewTransmission implements ActionListener {
     private JFrame frame;
     private JPanel panel, panelTop;
     private JLabel labelName, labelPrice;
-    private JButton buttonAdd;
+    private JButton buttonAdd, buttonSave;
     private JTextField textName;
     private static DefaultTableModel model;
     private JTable table;
@@ -40,39 +40,7 @@ public class NewTransmission implements ActionListener {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosed(e);
-                summaryList = new ArrayList<>();
-                double sum = 15.0;
-                try {
-                    PrintWriter file = new PrintWriter(fileName);
-                    for (Map.Entry<List<String>, List<List<String>>> entry : productsMap.entrySet()) {
-                        List<String> product = entry.getKey();
-                        List<List<String>> clients = entry.getValue();
-                        for (List<String> client : clients) {
-                            summaryList.add(client.get(0) + " - " + product.get(0) + " - " + client.get(1) + " - " + client.get(2) + " - Cena: " + product.get(1) + " zł");
-                        }
-                    }
-                    Collections.sort(summaryList);
-                    if (!summaryList.isEmpty()) {
-                        String[] first = summaryList.get(0).split(" - ");
-                        for (String line : summaryList) {
-                            if (!first[0].equals(line.split(" - ")[0])) {
-                                file.println("Przesyłka: 15 zł");
-                                file.println("Suma: " + sum + " zł");
-                                sum = 15.0;
-                                file.println("-------------------------------------------------------------------");
-                            }
-                            file.println(line);
-                            first = line.split(" - ");
-                            sum += Double.parseDouble(line.split(" - ")[4].split(" ")[1]);
-                        }
-                        file.println("Przesyłka: 15 zł");
-                        file.println("Suma: " + sum + " zł");
-                        file.println("-------------------------------------------------------------------");
-                    }
-                    file.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                saveToFile();
             }
         });
 
@@ -111,6 +79,12 @@ public class NewTransmission implements ActionListener {
         buttonAdd.setPreferredSize(new Dimension(100, 30));
         panelTop.add(buttonAdd);
         frame.getRootPane().setDefaultButton(buttonAdd);
+
+        buttonSave = new JButton("Zapisz");
+        buttonSave.addActionListener(this);
+        buttonSave.setActionCommand("save");
+        buttonSave.setPreferredSize(new Dimension(100, 30));
+        panelTop.add(buttonSave);
 
         panel.add(panelTop);
 
@@ -197,9 +171,47 @@ public class NewTransmission implements ActionListener {
         this.fileName = name;
     }
 
+    public void saveToFile() {
+        summaryList = new ArrayList<>();
+        double sum = 15.0;
+        try {
+            PrintWriter file = new PrintWriter(fileName);
+            for (Map.Entry<List<String>, List<List<String>>> entry : productsMap.entrySet()) {
+                List<String> product = entry.getKey();
+                List<List<String>> clients = entry.getValue();
+                for (List<String> client : clients) {
+                    summaryList.add(client.get(0) + " - " + product.get(0) + " - " + client.get(1) + " - " + client.get(2) + " - Cena: " + product.get(1) + " zł");
+                }
+            }
+            Collections.sort(summaryList);
+            if (!summaryList.isEmpty()) {
+                String[] first = summaryList.get(0).split(" - ");
+                for (String line : summaryList) {
+                    if (!first[0].equals(line.split(" - ")[0])) {
+                        file.println("Przesyłka: 15 zł");
+                        file.println("Suma: " + sum + " zł");
+                        sum = 15.0;
+                        file.println("-------------------------------------------------------------------");
+                    }
+                    file.println(line);
+                    first = line.split(" - ");
+                    sum += Double.parseDouble(line.split(" - ")[4].split(" ")[1]);
+                }
+                file.println("Przesyłka: 15 zł");
+                file.println("Suma: " + sum + " zł");
+                file.println("-------------------------------------------------------------------");
+            }
+            file.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("addProduct")) {
+        String command = e.getActionCommand();
+
+        if (command.equals("addProduct")) {
             String productName = textName.getText();
             textName.setText("");
             Double productPrice = (Double) price.getValue();
@@ -216,7 +228,7 @@ public class NewTransmission implements ActionListener {
 //            table.requestFocus();
             textName.requestFocus();
         }
-        else if (e.getActionCommand().equals("deleteProduct")) {
+        else if (command.equals("deleteProduct")) {
             int selectedRow = table.getSelectedRow();
             String productName = (String)table.getValueAt(selectedRow, 0);
             String productPrice = (String)table.getValueAt(selectedRow, 1);
@@ -229,13 +241,16 @@ public class NewTransmission implements ActionListener {
 
             textName.requestFocus();
         }
-        else if (e.getActionCommand().equals("editProduct")) {
+        else if (command.equals("editProduct")) {
             int selectedRow = table.getSelectedRow();
             int selectedColumn = table.getSelectedColumn();
             if (selectedRow >= 0 && selectedColumn >=0) {
                 table.editCellAt(selectedRow, selectedColumn);
                 table.transferFocus();
             }
+        }
+        else if (command.equals("save")) {
+            saveToFile();
         }
     }
 }
