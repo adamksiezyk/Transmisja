@@ -41,6 +41,7 @@ public class NewTransmission implements ActionListener {
             public void windowClosing(WindowEvent e) {
                 super.windowClosed(e);
                 summaryList = new ArrayList<>();
+                double sum = 15.0;
                 try {
                     PrintWriter file = new PrintWriter(fileName);
                     for (Map.Entry<List<String>, List<List<String>>> entry : productsMap.entrySet()) {
@@ -55,11 +56,18 @@ public class NewTransmission implements ActionListener {
                         String[] first = summaryList.get(0).split(" - ");
                         for (String line : summaryList) {
                             if (!first[0].equals(line.split(" - ")[0])) {
+                                file.println("Przesyłka: 15 zł");
+                                file.println("Suma: " + sum + " zł");
+                                sum = 15.0;
                                 file.println("-------------------------------------------------------------------");
                             }
                             file.println(line);
                             first = line.split(" - ");
+                            sum += Double.parseDouble(line.split(" - ")[4].split(" ")[1]);
                         }
+                        file.println("Przesyłka: 15 zł");
+                        file.println("Suma: " + sum + " zł");
+                        file.println("-------------------------------------------------------------------");
                     }
                     file.close();
                 } catch (IOException e1) {

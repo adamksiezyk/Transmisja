@@ -49,7 +49,7 @@ public class GUI {
                         Scanner reader = new Scanner(new File(path));
                         while (reader.hasNextLine()) {
                             String line = reader.nextLine();
-                            if (!line.contains("---")) {
+                            if (!line.contains("---") && !line.contains("Przesyłka") && !line.contains("Suma")) {
                                 String[] orderData = line.split(" - ");
 
                                 List<String> productData = new ArrayList<>();
