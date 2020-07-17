@@ -301,7 +301,28 @@ public class NewTransmission implements ActionListener {
             saveToFile();
         }
         else if (command.equals("search")) {
-            // TODO
+            List<String[]> orders = new ArrayList<>();
+            String clientName = textSearch.getText().strip();
+            textSearch.setText("");
+
+            // Iterate through products
+            String clientNameOrg = "";
+            for (Map.Entry<List<String>, List<List<String>>> entry : ordersMap.entrySet()) {
+                List<String> product = entry.getKey();
+                List<List<String>> clientsList = entry.getValue();
+
+                // Find client's orders
+                for (List<String> client: clientsList) {
+                    if (clientName.toLowerCase().equals(client.get(0).toLowerCase())) {
+                        clientNameOrg = client.get(0);
+                        orders.add(new String[] {product.get(0), client.get(1), client.get(2), product.get(1)});
+                    }
+                }
+            }
+
+            // Check if client was found
+            if (!orders.isEmpty()) new SearchClient(clientNameOrg, orders);
+            else JOptionPane.showMessageDialog(new JFrame(), "Nie znaleziono klienta.");
         }
     }
 }
