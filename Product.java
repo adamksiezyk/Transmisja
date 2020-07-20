@@ -22,8 +22,8 @@ public class Product implements ActionListener {
     List<String> productData;
     List<String> blackList = new ArrayList<>();
 
-    public Product(MouseEvent e) {
-        table = (JTable) e.getSource();
+    public Product(JTable table) {
+//        table = (JTable) e.getSource();
         int row = table.getSelectedRow();
         String name = (String)table.getValueAt(row, 0);
         String price = (String)table.getValueAt(row, 1);

@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,15 +12,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.awt.Dimension;
 
 public class NewTransmission implements ActionListener {
 
     private JFrame frame;
     private JPanel panelMain, panelTop;
-    private JLabel labelName, labelSearch;
-    private JButton buttonAdd, buttonSave, buttonSearch;
-    private JTextField textName, textSearch;
+    private JLabel labelName, labelSearchClient, labelSearchProduct;
+    private JButton buttonAdd, buttonSave, buttonSearchClient, buttonSearchProduct;
+    private JTextField textName, textSearchClient, textSearchProduct;
     private static DefaultTableModel modelProd;
     private JTable tableProd;
     private JScrollPane scrollProd;
@@ -57,13 +57,18 @@ public class NewTransmission implements ActionListener {
         // Top panel - components
         labelName = new JLabel("Dodaj produkt:");
 
-        labelSearch = new JLabel("Szukaj klienta:");
+        labelSearchClient = new JLabel("Szukaj klienta:");
+
+        labelSearchProduct = new JLabel("Szukaj produkt:");
 
         textName = new JTextField(20);
         textName.setMaximumSize(new Dimension(500, 30));
 
-        textSearch = new JTextField(20);
-        textSearch.setMaximumSize(new Dimension(500, 30));
+        textSearchClient = new JTextField(20);
+        textSearchClient.setMaximumSize(new Dimension(500, 30));
+
+        textSearchProduct = new JTextField(20);
+        textSearchProduct.setMaximumSize(new Dimension(500, 30));
 
         spinnerPrice = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 100000.0, 0.01));
         spinnerPrice.setMaximumSize(new Dimension(100, 30));
@@ -82,10 +87,15 @@ public class NewTransmission implements ActionListener {
         buttonAdd.setPreferredSize(new Dimension(100, 30));
         frame.getRootPane().setDefaultButton(buttonAdd);
 
-        buttonSearch = new JButton("Szukaj");
-        buttonSearch.addActionListener(this);
-        buttonSearch.setActionCommand("search");
-        buttonSearch.setPreferredSize(new Dimension(100, 30));
+        buttonSearchClient = new JButton("Szukaj");
+        buttonSearchClient.addActionListener(this);
+        buttonSearchClient.setActionCommand("searchClient");
+        buttonSearchClient.setPreferredSize(new Dimension(100, 30));
+
+        buttonSearchProduct = new JButton("Szukaj");
+        buttonSearchProduct.addActionListener(this);
+        buttonSearchProduct.setActionCommand("searchProduct");
+        buttonSearchProduct.setPreferredSize(new Dimension(100, 30));
 
         buttonSave = new JButton("Zapisz");
         buttonSave.addActionListener(this);
@@ -95,20 +105,23 @@ public class NewTransmission implements ActionListener {
         // Top panel - layout
         layoutAdd.setAutoCreateGaps(true);
         layoutAdd.setAutoCreateContainerGaps(true);
-        layoutAdd.linkSize(SwingConstants.VERTICAL, labelName, labelSearch, textName, textSearch, spinnerPrice, buttonAdd, buttonSearch, buttonSave);
-        layoutAdd.linkSize(SwingConstants.HORIZONTAL, buttonAdd, buttonSearch, buttonSave);
+        layoutAdd.linkSize(SwingConstants.VERTICAL, labelName, labelSearchClient, labelSearchProduct, textName, textSearchClient, textSearchProduct, spinnerPrice, buttonAdd, buttonSearchClient, buttonSearchProduct, buttonSave);
+        layoutAdd.linkSize(SwingConstants.HORIZONTAL, buttonAdd, buttonSearchClient, buttonSearchProduct, buttonSave);
         layoutAdd.setHorizontalGroup(
                 layoutAdd.createSequentialGroup()
                         .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(labelName)
-                                .addComponent(labelSearch))
+                                .addComponent(labelSearchClient)
+                                .addComponent(labelSearchProduct))
                         .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(textName)
-                                .addComponent(textSearch))
+                                .addComponent(textSearchClient)
+                                .addComponent(textSearchProduct))
                         .addComponent(spinnerPrice)
                         .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(buttonAdd)
-                                .addComponent(buttonSearch)
+                                .addComponent(buttonSearchClient)
+                                .addComponent(buttonSearchProduct)
                                 .addComponent(buttonSave))
         );
         layoutAdd.setVerticalGroup(
@@ -118,10 +131,14 @@ public class NewTransmission implements ActionListener {
                                 .addComponent(textName)
                                 .addComponent(spinnerPrice)
                                 .addComponent(buttonAdd))
-                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(labelSearch)
-                                .addComponent(textSearch)
-                                .addComponent(buttonSearch))
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(labelSearchClient)
+                                .addComponent(textSearchClient)
+                                .addComponent(buttonSearchClient))
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(labelSearchProduct)
+                                .addComponent(textSearchProduct)
+                                .addComponent(buttonSearchProduct))
                         .addComponent(buttonSave)
         );
 
@@ -140,7 +157,7 @@ public class NewTransmission implements ActionListener {
                 super.mouseClicked(e);
                 if (e.getClickCount() % 2 == 0 && !e.isConsumed()) {
                     e.consume();
-                    new Product(e);
+                    new Product(tableProd);
                 }
             }
         });
@@ -300,10 +317,10 @@ public class NewTransmission implements ActionListener {
         else if (command.equals("save")) {
             saveToFile();
         }
-        else if (command.equals("search")) {
+        else if (command.equals("searchClient")) {
             List<String[]> orders = new ArrayList<>();
-            String clientName = textSearch.getText().strip();
-            textSearch.setText("");
+            String clientName = textSearchClient.getText().strip();
+            textSearchClient.setText("");
 
             // Iterate through products
             String clientNameOrg = "";
@@ -323,6 +340,27 @@ public class NewTransmission implements ActionListener {
             // Check if client was found
             if (!orders.isEmpty()) new SearchClient(clientNameOrg, orders);
             else JOptionPane.showMessageDialog(new JFrame(), "Nie znaleziono klienta.");
+        }
+        else if (command.equals("searchProduct")) {
+            String productName = textSearchProduct.getText().trim();
+            textSearchProduct.setText("");
+
+            for (Map.Entry<List<String>, List<List<String>>> entry : ordersMap.entrySet()) {
+                List<String> product = entry.getKey();
+
+                if (product.get(0).toLowerCase().equals(productName.toLowerCase())) {
+                    productName = product.get(0);
+                    for (int i = 0; i < tableProd.getRowCount(); ++i) {
+                        String rowName = (String) tableProd.getValueAt(i, 0);
+
+                        if (rowName.equals(productName)) {
+                            tableProd.setRowSelectionInterval(i, i);
+                            new Product(tableProd);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
