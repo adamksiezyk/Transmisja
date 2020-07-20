@@ -53,13 +53,13 @@ public class GUI {
                                 String[] orderData = line.split(" - ");
 
                                 List<String> productData = new ArrayList<>();
-                                productData.add(orderData[1]);
+                                productData.add(orderData[1].trim());
                                 String[] price = orderData[4].split(" ");
-                                productData.add(price[1]);
+                                productData.add(price[1].trim());
                                 List<String> clientData = new ArrayList<>();
-                                clientData.add(orderData[0]);
-                                clientData.add(orderData[2]);
-                                clientData.add(orderData[3]);
+                                clientData.add(orderData[0].trim());
+                                clientData.add(orderData[2].trim());
+                                clientData.add(orderData[3].trim());
                                 loadedTransmission.addClient(productData, clientData);
                             }
                         }
