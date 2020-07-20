@@ -237,7 +237,7 @@ public class NewTransmission implements ActionListener {
     // Save orders to file
     public void saveToFile() {
         summaryList = new ArrayList<>();
-        double sum = 0;
+        double sum = 15;
         try {
             PrintWriter file = new PrintWriter(fileName, "UTF-8");
             for (Map.Entry<List<String>, List<List<String>>> entry : ordersMap.entrySet()) {
@@ -252,17 +252,17 @@ public class NewTransmission implements ActionListener {
                 String[] first = summaryList.get(0).split(" - ");
                 for (String line : summaryList) {
                     if (!first[0].equals(line.split(" - ")[0])) {
-                        file.println("Suma: " + sum + " zł");
                         file.println("Przesyłka: 15 zł");
-                        sum = 0;
+                        file.println("Suma: " + sum + " zł");
+                        sum = 15;
                         file.println("-------------------------------------------------------------------");
                     }
                     file.println(line);
                     first = line.split(" - ");
                     sum += Double.parseDouble(line.split(" - ")[4].split(" ")[1]);
                 }
-                file.println("Suma: " + sum + " zł");
                 file.println("Przesyłka: 15 zł");
+                file.println("Suma: " + sum + " zł");
                 file.println("-------------------------------------------------------------------");
             }
             file.close();
