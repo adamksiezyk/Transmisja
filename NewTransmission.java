@@ -17,7 +17,7 @@ public class NewTransmission implements ActionListener {
 
     private JFrame frame;
     private JPanel panelMain, panelTop;
-    private JLabel labelName, labelSearchClient, labelSearchProduct;
+    private static JLabel labelName, labelSearchClient, labelSearchProduct, labelSold;
     private JButton buttonAdd, buttonSave, buttonSearchClient, buttonSearchProduct;
     private JTextField textName, textSearchClient, textSearchProduct;
     private static DefaultTableModel modelProd;
@@ -27,6 +27,7 @@ public class NewTransmission implements ActionListener {
     private static HashMap<List<String>, List<List<String>>> ordersMap = new HashMap<>();
     private List<String> summaryList;
     private String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss")) + ".txt";
+    private static int sold = 0;
 
     public NewTransmission() {
         // Create frame
@@ -97,6 +98,8 @@ public class NewTransmission implements ActionListener {
         buttonSearchProduct.setActionCommand("searchProduct");
         buttonSearchProduct.setPreferredSize(new Dimension(100, 30));
 
+        labelSold = new JLabel("Sprzedano: " + sold);
+
         buttonSave = new JButton("Zapisz");
         buttonSave.addActionListener(this);
         buttonSave.setActionCommand("save");
@@ -105,14 +108,15 @@ public class NewTransmission implements ActionListener {
         // Top panel - layout
         layoutAdd.setAutoCreateGaps(true);
         layoutAdd.setAutoCreateContainerGaps(true);
-        layoutAdd.linkSize(SwingConstants.VERTICAL, labelName, labelSearchClient, labelSearchProduct, textName, textSearchClient, textSearchProduct, spinnerPrice, buttonAdd, buttonSearchClient, buttonSearchProduct, buttonSave);
+        layoutAdd.linkSize(SwingConstants.VERTICAL, labelName, labelSearchClient, labelSearchProduct, labelSold, textName, textSearchClient, textSearchProduct, spinnerPrice, buttonAdd, buttonSearchClient, buttonSearchProduct, buttonSave);
         layoutAdd.linkSize(SwingConstants.HORIZONTAL, buttonAdd, buttonSearchClient, buttonSearchProduct, buttonSave);
         layoutAdd.setHorizontalGroup(
                 layoutAdd.createSequentialGroup()
                         .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(labelName)
                                 .addComponent(labelSearchClient)
-                                .addComponent(labelSearchProduct))
+                                .addComponent(labelSearchProduct)
+                                .addComponent(labelSold))
                         .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(textName)
                                 .addComponent(textSearchClient)
@@ -139,7 +143,9 @@ public class NewTransmission implements ActionListener {
                                 .addComponent(labelSearchProduct)
                                 .addComponent(textSearchProduct)
                                 .addComponent(buttonSearchProduct))
-                        .addComponent(buttonSave)
+                        .addGroup(layoutAdd.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(labelSold)
+                                .addComponent(buttonSave))
         );
 
         // Products table
@@ -183,12 +189,19 @@ public class NewTransmission implements ActionListener {
     // Add client to product
     public static boolean addClient(List<String> productData, List<String> client) {
         if (ordersMap.containsKey(productData)) {
+            sold += 1;
+            labelSold.setText("Sprzedano: " + sold);
+
             return ordersMap.get(productData).add(client);
         } else {
             modelProd.addRow(productData.toArray());
             List<List<String>> clientsList = new ArrayList<>();
             clientsList.add(client);
             ordersMap.put(productData, clientsList);
+
+            sold += 1;
+            labelSold.setText("Sprzedano: " + sold);
+
             return true;
         }
     }
@@ -196,6 +209,9 @@ public class NewTransmission implements ActionListener {
     // Remove client from product
     public static boolean removeClient(List<String> productData, List<String> clientData) {
         if (ordersMap.containsKey(productData)) {
+            sold -= 1;
+            labelSold.setText("Sprzedano: " + sold);
+
             return ordersMap.get(productData).remove(clientData);
         } else return false;
     }
@@ -302,6 +318,8 @@ public class NewTransmission implements ActionListener {
             productData.add(productPrice);
 
             modelProd.removeRow(selectedRow);
+            sold -= ordersMap.get(productData).size();
+            labelSold.setText("Sprzedano: " + sold);
             ordersMap.remove(productData);
 
             textName.requestFocus();
