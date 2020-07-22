@@ -156,6 +156,8 @@ public class NewTransmission implements ActionListener {
         tableProd.setModel(modelProd);
         tableProd.setRowHeight(30);
         tableProd.setDefaultEditor(Object.class, new ProductEditor());
+        tableProd.setRowSelectionAllowed(true);
+        tableProd.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         // Double click mouse listener
         tableProd.addMouseListener(new MouseAdapter() {
             @Override
@@ -338,7 +340,6 @@ public class NewTransmission implements ActionListener {
         else if (command.equals("searchClient")) {
             List<String[]> orders = new ArrayList<>();
             String clientName = textSearchClient.getText().strip();
-            textSearchClient.setText("");
 
             // Iterate through products
             String clientNameOrg = "";
@@ -360,23 +361,16 @@ public class NewTransmission implements ActionListener {
             else JOptionPane.showMessageDialog(new JFrame(), "Nie znaleziono klienta.");
         }
         else if (command.equals("searchProduct")) {
-            String productName = textSearchProduct.getText().trim();
-            textSearchProduct.setText("");
+            String productName = textSearchProduct.getText().trim().toLowerCase();
 
-            for (Map.Entry<List<String>, List<List<String>>> entry : ordersMap.entrySet()) {
-                List<String> product = entry.getKey();
+            ListSelectionModel selectionModel = tableProd.getSelectionModel();
+            selectionModel.clearSelection();
 
-                if (product.get(0).toLowerCase().equals(productName.toLowerCase())) {
-                    productName = product.get(0);
-                    for (int i = 0; i < tableProd.getRowCount(); ++i) {
-                        String rowName = (String) tableProd.getValueAt(i, 0);
+            for (int i = 0; i < tableProd.getRowCount(); ++i) {
+                String rowName = (String) tableProd.getValueAt(i, 0);
 
-                        if (rowName.equals(productName)) {
-                            tableProd.setRowSelectionInterval(i, i);
-                            new Product(tableProd);
-                            break;
-                        }
-                    }
+                if (rowName.toLowerCase().contains(productName)) {
+                    selectionModel.addSelectionInterval(i,i);
                 }
             }
         }

@@ -14,7 +14,6 @@ public class Product implements ActionListener {
 
     JFrame frame;
     JPanel panel, panelTop;
-    JTable table;
     JScrollPane scroll;
     JTable tableClient;
     JTextField textName, textColor, textSize;
@@ -23,7 +22,6 @@ public class Product implements ActionListener {
     List<String> blackList = new ArrayList<>();
 
     public Product(JTable table) {
-//        table = (JTable) e.getSource();
         int row = table.getSelectedRow();
         String name = (String)table.getValueAt(row, 0);
         String price = (String)table.getValueAt(row, 1);
