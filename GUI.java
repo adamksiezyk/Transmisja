@@ -23,53 +23,48 @@ public class GUI {
         panel.setBorder(new EmptyBorder(80, 80, 150, 80));
 
         buttonNew = new JButton("Nowa transmisja");
-        buttonNew.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new NewTransmission();
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-            }
+        buttonNew.addActionListener(e -> {
+            new NewTransmission();
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
         buttonNew.setActionCommand("newTransmission");
         panel.add(buttonNew);
 
         buttonLoad = new JButton("Załaduj transmisję");
-        buttonLoad.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Pliki .txt", "txt");
-                fileChooser.setFileFilter(filter);
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    String path = fileChooser.getSelectedFile().getAbsolutePath();
-                    try {
-                        NewTransmission loadedTransmission = new NewTransmission();
-                        loadedTransmission.setFileName(path);
-                        Scanner reader = new Scanner(new File(path), "UTF8");
-                        while (reader.hasNextLine()) {
-                            String line = reader.nextLine();
-                            if (!line.contains("---") && !line.contains("Przesyłka") && !line.contains("Suma")) {
-                                String[] orderData = line.split(" - ");
+        buttonLoad.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Pliki .txt", "txt");
+            fileChooser.setFileFilter(filter);
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                String path = fileChooser.getSelectedFile().getAbsolutePath();
+                try {
+                    NewTransmission loadedTransmission = new NewTransmission();
+                    loadedTransmission.setFileName(path);
+                    Scanner reader = new Scanner(new File(path), "UTF8");
+                    while (reader.hasNextLine()) {
+                        String line = reader.nextLine();
+                        if (!line.contains("---") && !line.contains("Przesyłka") && !line.contains("Suma")) {
+                            String[] orderData = line.split(" - ");
 
-                                List<String> productData = new ArrayList<>();
-                                productData.add(orderData[1].trim());
-                                String[] price = orderData[4].split(" ");
-                                productData.add(price[1].trim());
-                                List<String> clientData = new ArrayList<>();
-                                clientData.add(orderData[0].trim());
-                                clientData.add(orderData[2].trim());
-                                clientData.add(orderData[3].trim());
-                                loadedTransmission.addClient(productData, clientData);
-                            }
+                            List<String> productData = new ArrayList<>();
+                            productData.add(orderData[1].trim());
+                            String[] price = orderData[4].split(" ");
+                            productData.add(price[1].trim());
+                            List<String> clientData = new ArrayList<>();
+                            clientData.add(orderData[0].trim());
+                            clientData.add(orderData[2].trim());
+                            clientData.add(orderData[3].trim());
+                            loadedTransmission.addClient(productData, clientData);
                         }
-                    } catch (FileNotFoundException fileNotFoundException) {
-                        fileNotFoundException.printStackTrace();
                     }
-
+                } catch (FileNotFoundException fileNotFoundException) {
+                    fileNotFoundException.printStackTrace();
+                    JOptionPane.showMessageDialog(new JFrame(), "Błąd podczas ładowania transmisji.");
                 }
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+
             }
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
         panel.add(buttonLoad);
 

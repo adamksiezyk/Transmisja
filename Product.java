@@ -145,8 +145,10 @@ public class Product implements ActionListener {
             clientData.add(clientColor);
             clientData.add(clientSize);
 
-            model.addRow(clientData.toArray());
-            NewTransmission.addClient(productData, clientData);
+            if (!clientName.isEmpty()) {
+                model.addRow(clientData.toArray());
+                NewTransmission.addClient(productData, clientData);
+            }
 
             textName.requestFocus();
         }
@@ -184,6 +186,7 @@ public class Product implements ActionListener {
                 writer.close();
             } catch (IOException fileNotFoundException) {
                 fileNotFoundException.printStackTrace();
+                JOptionPane.showMessageDialog(new JFrame(), "Błąd podczas dodawania do czarnej listy.");
             }
             model.fireTableRowsUpdated(selectedRow, selectedRow);
         }
