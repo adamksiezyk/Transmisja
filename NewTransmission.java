@@ -64,29 +64,28 @@ public class NewTransmission implements ActionListener {
 
         textName = new JTextField(20);
         textName.setMaximumSize(new Dimension(500, 30));
+        textName.addActionListener(this);
+        textName.setActionCommand("addProduct");
 
         textSearchClient = new JTextField(20);
         textSearchClient.setMaximumSize(new Dimension(500, 30));
+        textSearchClient.addActionListener(this);
+        textSearchClient.setActionCommand("searchClient");
 
         textSearchProduct = new JTextField(20);
         textSearchProduct.setMaximumSize(new Dimension(500, 30));
+        textSearchProduct.addActionListener(this);
+        textSearchProduct.setActionCommand("searchProduct");
 
         spinnerPrice = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 100000.0, 0.01));
         spinnerPrice.setMaximumSize(new Dimension(100, 30));
-        ((JSpinner.DefaultEditor) spinnerPrice.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased( final KeyEvent e ) {
-                if ( e.getKeyCode() == KeyEvent.VK_ENTER ) {
-                    buttonAdd.doClick();
-                }
-            }
-        } );
+        ((JSpinner.DefaultEditor) spinnerPrice.getEditor()).getTextField().addActionListener(this);
+        ((JSpinner.DefaultEditor) spinnerPrice.getEditor()).getTextField().setActionCommand("addProduct");
 
         buttonAdd = new JButton("Dodaj");
         buttonAdd.addActionListener(this);
         buttonAdd.setActionCommand("addProduct");
         buttonAdd.setPreferredSize(new Dimension(100, 30));
-        frame.getRootPane().setDefaultButton(buttonAdd);
 
         buttonSearchClient = new JButton("Szukaj");
         buttonSearchClient.addActionListener(this);
