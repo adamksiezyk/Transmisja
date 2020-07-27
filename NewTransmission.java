@@ -287,6 +287,7 @@ public class NewTransmission implements ActionListener {
         } catch (IOException e1) {
             e1.printStackTrace();
             JOptionPane.showMessageDialog(new JFrame(), "Błąd podczas zapisywania transmisji.");
+            this.saveToFile();
         }
     }
 
@@ -366,11 +367,17 @@ public class NewTransmission implements ActionListener {
             ListSelectionModel selectionModel = tableProd.getSelectionModel();
             selectionModel.clearSelection();
 
+            boolean first = true;
+
             for (int i = 0; i < tableProd.getRowCount(); ++i) {
                 String rowName = (String) tableProd.getValueAt(i, 0);
 
                 if (rowName.toLowerCase().contains(productName)) {
                     selectionModel.addSelectionInterval(i,i);
+                    if (first) {
+                        tableProd.scrollRectToVisible(tableProd.getCellRect(i, 0, true));
+                        first = false;
+                    }
                 }
             }
         }
