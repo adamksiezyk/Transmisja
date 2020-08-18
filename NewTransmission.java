@@ -285,8 +285,10 @@ public class NewTransmission implements ActionListener {
             file.close();
         } catch (IOException e1) {
             e1.printStackTrace();
-            JOptionPane.showMessageDialog(new JFrame(), "Błąd podczas zapisywania transmisji.");
-            this.saveToFile();
+            int confirm = JOptionPane.showConfirmDialog(new JFrame(),"Powtórzyć zapisywanie?", "Błąd podczas zapisywania transmisji.", JOptionPane.ERROR_MESSAGE, JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                this.saveToFile();
+            }
         }
     }
 

@@ -85,6 +85,7 @@ public class Product implements ActionListener {
                 blackList.add(reader.nextLine());
             }
         } catch (FileNotFoundException fileNotFoundException) {
+            // If file doesn't exist the program will create it
             fileNotFoundException.printStackTrace();
         }
         tableClient.setDefaultRenderer(Object.class, new DefaultTableCellRenderer()
