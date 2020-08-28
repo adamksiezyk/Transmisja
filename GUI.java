@@ -7,24 +7,25 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+
 public class GUI {
 
+    private static GUI singleInstance = null;
     private static JFrame frame;
     private static JPanel panel;
     private static JButton buttonNew, buttonLoad;
 
-    public GUI() {
+    private GUI() {
         panel = new JPanel();
         panel.setLayout(new GridLayout(2, 1, 20, 100));
         panel.setBorder(new EmptyBorder(80, 80, 150, 80));
 
         buttonNew = new JButton("Nowa transmisja");
         buttonNew.addActionListener(e -> {
-            new NewTransmission();
+            NewTransmission transmission = NewTransmission.NewTransmission();
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
         buttonNew.setActionCommand("newTransmission");
@@ -39,7 +40,7 @@ public class GUI {
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 String path = fileChooser.getSelectedFile().getAbsolutePath();
                 try {
-                    NewTransmission loadedTransmission = new NewTransmission();
+                    NewTransmission loadedTransmission = NewTransmission.NewTransmission();
                     loadedTransmission.setFileName(path);
                     Scanner reader = new Scanner(new File(path), "UTF8");
                     while (reader.hasNextLine()) {
@@ -77,7 +78,12 @@ public class GUI {
         frame.setVisible(true);
     }
 
+    public static GUI GUI() {
+        if (singleInstance == null) singleInstance = new GUI();
+        return singleInstance;
+    }
+
     public static void main(String[] args) {
-        new GUI();
+        GUI startWindow = GUI.GUI();
     }
 }

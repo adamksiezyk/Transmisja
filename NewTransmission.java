@@ -15,21 +15,22 @@ import java.util.Map;
 
 public class NewTransmission implements ActionListener {
 
-    private JFrame frame;
-    private JPanel panelMain, panelTop;
+    private static NewTransmission singleInstance = null;
+    private static JFrame frame;
+    private static JPanel panelMain, panelTop;
     private static JLabel labelName, labelSearchClient, labelSearchProduct, labelSold;
-    private JButton buttonAdd, buttonSave, buttonSearchClient, buttonSearchProduct;
-    private JTextField textName, textSearchClient, textSearchProduct;
+    private static JButton buttonAdd, buttonSave, buttonSearchClient, buttonSearchProduct;
+    private static JTextField textName, textSearchClient, textSearchProduct;
     private static DefaultTableModel modelProd;
-    private JTable tableProd;
-    private JScrollPane scrollProd;
-    private JSpinner spinnerPrice;
+    private static JTable tableProd;
+    private static JScrollPane scrollProd;
+    private static JSpinner spinnerPrice;
     private static HashMap<List<String>, List<List<String>>> ordersMap = new HashMap<>();
-    private List<String> summaryList;
-    private String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss")) + ".txt";
+    private static List<String> summaryList;
+    private static String fileName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyy_HH-mm-ss")) + ".txt";
     private static int sold = 0;
 
-    public NewTransmission() {
+    private NewTransmission() {
         // Create frame
         frame = new JFrame("Transmisja");
         frame.setSize(600, 500);
@@ -187,6 +188,12 @@ public class NewTransmission implements ActionListener {
         frame.setVisible(true);
     }
 
+    // Initialize only one instance of NewTransmission
+    public static NewTransmission NewTransmission() {
+        if (singleInstance == null) singleInstance = new NewTransmission();
+        return singleInstance;
+    }
+
     // Add client to product
     public static boolean addClient(List<String> productData, List<String> client) {
         if (ordersMap.containsKey(productData)) {
@@ -248,7 +255,7 @@ public class NewTransmission implements ActionListener {
 
     // Set file name
     public void setFileName(String name) {
-        this.fileName = name;
+        fileName = name;
     }
 
     // Save orders to file
